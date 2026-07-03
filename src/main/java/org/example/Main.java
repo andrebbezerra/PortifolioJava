@@ -1,24 +1,24 @@
 package org.example;
-import org.example.dto.AutorDto;
-import org.example.dto.LivrosDto;
 import org.example.entity.Autor;
 import org.example.entity.GeneroLiterario;
 import org.example.entity.Livros;
+import org.example.repository.AutorRepository;
+import org.example.repository.LivrosRepository;
 
 import java.util.Scanner;
 
 public class Main {
     static String nomeLivro;
-    static String ISBN;
+    static String isbn;
     static String generoLiterario;
 
     static Scanner sc = new Scanner(System.in);
      public static void main(String[] args) {
 
-        boolean sairdoSitema = true;
+        boolean continuarExecutando  = true;
         int opcao;
 
-        while (sairdoSitema){
+        while (continuarExecutando ){
             System.out.println("Qual opção você gostaria de executar?");
             System.out.println("-------------------------------------");
             System.out.println("1 - Adicionar um livro");
@@ -49,7 +49,7 @@ public class Main {
                 case 7:
                     break;
                 case 8:
-                    sairdoSitema = false;
+                    continuarExecutando  = false;
                     break;
                 default: System.out.println("Opção inválida. Por favor, escolha uma opção entre 1 e 8.");
             }
@@ -63,18 +63,18 @@ public class Main {
         System.out.println("Digite o nome:");
         nomeLivro = sc.nextLine();
         System.out.println("Digite o ISBN:");
-        ISBN = sc.nextLine();
+        isbn = sc.nextLine();
         System.out.println("Digite o Autor:");
-        AutorDto autorDto = new AutorDto();
-        autorDto.cadastrarAutor(sc.nextLine());
+        AutorRepository autorRepository = new AutorRepository();
+        autorRepository.salvar(new Autor(sc.nextLine()));
         System.out.println("Escolha o Genero do livro: DRAMA,TERROR, FICCAOCIENTIFICA, ACAO, AVENTURA, BIBLIOGRAFIA");
         generoLiterario = sc.nextLine();
         generoLiterario = generoLiterario.toUpperCase();
 
         try {
-            LivrosDto livrodto = new LivrosDto();
-            livrodto.cadastrarLivros(nomeLivro,autorDto,ISBN,GeneroLiterario.valueOf(generoLiterario));
-            return "Livro "+LivrosDto.getListaLivrosPeloNome(nomeLivro)+" Cadastrado com sucesso!";
+            LivrosRepository livros = new LivrosRepository();
+            livros.salvar(new Livros(nomeLivro,autorRepository,isbn,GeneroLiterario.valueOf(generoLiterario)));
+            return "Livro "+livros.buscarPorNome(nomeLivro)+" Cadastrado com sucesso!";
         } catch (IllegalArgumentException e) {
             return "Erro ao cadastrar livro: Gênero literário inválido. Por favor, escolha um dos gêneros listados.";
         }

@@ -1,8 +1,8 @@
 package org.example.entity;
 
-import org.example.dto.AutorDto;
+import org.example.repository.AutorRepository;
 
-public record Livros(String nomeLivro, AutorDto autorDto, String ISBN, GeneroLiterario generoliterario) {
+public record Livros(String nomeLivro, AutorRepository autor, String isbn, GeneroLiterario generoliterario) {
     @Override
     public String nomeLivro() {
         return nomeLivro;

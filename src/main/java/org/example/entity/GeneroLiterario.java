@@ -7,6 +7,6 @@ public enum GeneroLiterario {
     FICCAOCIENTIFICA,
     ACAO,
     AVENTURA,
-    BIBLIOGRAFIA;
+    BIOGRAFIA;
 
 }
