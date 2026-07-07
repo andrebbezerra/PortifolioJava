@@ -13,7 +13,7 @@ public class Main {
     static String generoLiterario;
 
     static Scanner sc = new Scanner(System.in);
-     public static void main(String[] args) {
+    public static void main(String[] args) {
 
         boolean continuarExecutando  = true;
         int opcao;
