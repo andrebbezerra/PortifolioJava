@@ -2,7 +2,7 @@ package org.example.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class AutorRepositoryTest {
+class AuthorRepositoryTest {
 
     @org.junit.jupiter.api.Test
     void salvar() {

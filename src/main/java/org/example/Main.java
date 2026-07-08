@@ -1,18 +1,21 @@
 package org.example;
-import org.example.entity.Autor;
+import org.example.entity.Author;
 import org.example.entity.GeneroLiterario;
 import org.example.entity.Livros;
-import org.example.repository.AutorRepository;
+import org.example.entity.Manga;
+import org.example.repository.AuthorRepository;
 import org.example.repository.LivrosRepository;
-
+import java.util.Optional;
 import java.util.Scanner;
 
 public class Main {
     static String nomeLivro;
     static String isbn;
     static String generoLiterario;
-
+    static AuthorRepository autorRepository = new AuthorRepository();
+    static LivrosRepository livros = new LivrosRepository();
     static Scanner sc = new Scanner(System.in);
+
     public static void main(String[] args) {
 
         boolean continuarExecutando  = true;
@@ -27,26 +30,35 @@ public class Main {
             System.out.println("4 - Consultar um livro Cadastrado pelo nome");
             System.out.println("5 - Consultar Lista de livros Cadastrados");
             System.out.println("6 - Consultar Livros por Autor");
-            System.out.println("7 - Consultar Livros por Categoria(DRAMA,TERROR,FICCAOCIENTIFICA,ACAO,AVENTURA,BIBLIOGRAFIA");
+            System.out.println("7 - Consultar Livros por Categoria(DRAMA,TERROR,FICCAOCIENTIFICA,ACAO,AVENTURA,BIOGRAFIA)");
             System.out.println("8 - Sair do Programa");
             opcao = sc.nextInt();
             sc.nextLine();
             switch(opcao){
                 case 1:
-                    String retorno = adicionarLivro();
-                    System.out.println(retorno);
+                    System.out.println(adicionarLivro());
                     break;
                 case 2:
+                    System.out.println(atualizarLivro());
                     break;
                 case 3:
+                    System.out.println(excluirLivro());
                     break;
                 case 4:
+                    System.out.println("Digite o nome:");
+                    nomeLivro = sc.nextLine();
+                    System.out.println(livros.buscarPorNome(nomeLivro));
                     break;
                 case 5:
+                    System.out.println(livros.listarTodos());
                     break;
                 case 6:
+                    System.out.println("Digite o nome do autor:");
+                    System.out.println(livros.buscarPorAuthor(sc.nextLine()));
                     break;
                 case 7:
+                    System.out.println("Digite a categoria:");
+                    System.out.println(livros.buscarPorCategoria(sc.nextLine()));
                     break;
                 case 8:
                     continuarExecutando  = false;
@@ -65,18 +77,91 @@ public class Main {
         System.out.println("Digite o ISBN:");
         isbn = sc.nextLine();
         System.out.println("Digite o Autor:");
-        AutorRepository autorRepository = new AutorRepository();
-        autorRepository.salvar(new Autor(sc.nextLine()));
-        System.out.println("Escolha o Genero do livro: DRAMA,TERROR, FICCAOCIENTIFICA, ACAO, AVENTURA, BIBLIOGRAFIA");
+        Author author = new Author(sc.nextLine());
+        autorRepository.salvar(author);
+        System.out.println("Escolha o Genero do livro: DRAMA,TERROR, FICCAOCIENTIFICA, ACAO, AVENTURA, BIOGRAFIA,MANGA");
         generoLiterario = sc.nextLine();
         generoLiterario = generoLiterario.toUpperCase();
+        if(generoLiterario.equals("MANGA")){
+            System.out.println("Digite a edição do Mangá:");
+            try {
+                Manga manga = new Manga(nomeLivro, author, isbn, GeneroLiterario.valueOf(generoLiterario), sc.nextLine());
+                livros.salvar(manga);
+                return livros.buscarPorNome(nomeLivro)
+                        .map(l -> "Livro " + l.nomeLivro() + " cadastrado com sucesso!")
+                        .orElse("Erro ao cadastrar o livro.");
+            }catch (IllegalArgumentException e) {
+                return "Erro ao cadastrar livro: Gênero literário inválido. Por favor, escolha um dos gêneros listados.";
+            }
+        } else{
+            try {
+                livros.salvar(new Livros(nomeLivro,author,isbn,GeneroLiterario.valueOf(generoLiterario)));
 
-        try {
-            LivrosRepository livros = new LivrosRepository();
-            livros.salvar(new Livros(nomeLivro,autorRepository,isbn,GeneroLiterario.valueOf(generoLiterario)));
-            return "Livro "+livros.buscarPorNome(nomeLivro)+" Cadastrado com sucesso!";
-        } catch (IllegalArgumentException e) {
-            return "Erro ao cadastrar livro: Gênero literário inválido. Por favor, escolha um dos gêneros listados.";
+                return livros.buscarPorNome(nomeLivro)
+                        .map(l -> "Livro " + l.nomeLivro() + " cadastrado com sucesso!")
+                        .orElse("Erro ao cadastrar o livro.");
+            } catch (IllegalArgumentException e) {
+                return "Erro ao cadastrar livro: Gênero literário inválido. Por favor, escolha um dos gêneros listados.";
+            }
+        }
+    }
+
+    private static String atualizarLivro(){
+        System.out.println("Digite o nome do livro a ser alterado:");
+        nomeLivro = sc.nextLine();
+        Optional<Livros> livroAlterar= livros.buscarPorNome(nomeLivro);
+        if(livroAlterar.isPresent()){
+            System.out.println("Livro encontrado com sucesso!");
+            System.out.println("-------------------------------------");
+            System.out.println("Digite o nome:");
+            nomeLivro = sc.nextLine();
+            System.out.println("Digite o ISBN:");
+            isbn = sc.nextLine();
+            System.out.println("Digite o Autor:");
+            Author author = new Author(sc.nextLine());
+            autorRepository.salvar(author);
+            System.out.println("Escolha o Genero do livro: DRAMA,TERROR, FICCAOCIENTIFICA, ACAO, AVENTURA, BIOGRAFIA,MANGA");
+            generoLiterario = sc.nextLine();
+            generoLiterario = generoLiterario.toUpperCase();
+            livros.excluir(livroAlterar.get());
+            if(generoLiterario.equals("MANGA")){
+                System.out.println("Digite a edição do Mangá:");
+                try {
+                    Manga manga = new Manga(nomeLivro, author, isbn, GeneroLiterario.valueOf(generoLiterario), sc.nextLine());
+                    livros.salvar(manga);
+                    return livros.buscarPorNome(nomeLivro)
+                            .map(l -> "Livro " + l.nomeLivro() + " cadastrado com sucesso!")
+                            .orElse("Erro ao cadastrar o livro.");
+                }catch (IllegalArgumentException e) {
+                    return "Erro ao cadastrar livro: Gênero literário inválido. Por favor, escolha um dos gêneros listados.";
+                }
+            } else{
+                try {
+                    livros.salvar(new Livros(nomeLivro,author,isbn,GeneroLiterario.valueOf(generoLiterario)));
+
+                    return livros.buscarPorNome(nomeLivro)
+                            .map(l -> "Livro " + l.nomeLivro() + " cadastrado com sucesso!")
+                            .orElse("Erro ao cadastrar o livro.");
+                } catch (IllegalArgumentException e) {
+                    return "Erro ao cadastrar livro: Gênero literário inválido. Por favor, escolha um dos gêneros listados.";
+                }
+            }
+
+        }
+        else return "Erro ao atualizar livro.";
+
+    }
+
+    private static String excluirLivro() {
+        System.out.println("Digite o nome do livro a ser excluido:");
+        nomeLivro = sc.nextLine();
+        Optional<Livros> livroAlterar= livros.buscarPorNome(nomeLivro);
+        if(livroAlterar.isPresent()){
+            livros.excluir(livroAlterar.get());
+            return "Livro Excluido com sucesso";
+        }
+        else{
+            return "Falha ao excluir livro";
         }
     }
 }
