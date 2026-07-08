@@ -8,7 +8,7 @@ public abstract class Serializacao implements Serializable{
         ObjectOutputStream objectOutput;
 
         try {
-                objectOutput = new ObjectOutputStream(new FileOutputStream("livraria.byte"));
+                objectOutput = new ObjectOutputStream(new FileOutputStream("livraria.byte", true));
                 objectOutput.writeObject(object);
                 objectOutput.close();
             } catch (IOException e) {
@@ -17,16 +17,14 @@ public abstract class Serializacao implements Serializable{
 
     }
 
-    public void deserializar(Object object){
+    public Object deserializar(){
         ObjectInputStream objectInput;
 
         try{
            objectInput = new ObjectInputStream(new FileInputStream("livraria.byte"));
-           objectInput.readObject();
-           objectInput.close();
-        }catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
+           //objectInput.close();
+            return objectInput.readObject();
+        }catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }

@@ -1,6 +1,8 @@
 package org.example.entity;
 
-public record Author(String nomeAuthor) {
+import java.io.Serializable;
+
+public record Author(String nomeAuthor) implements Serializable {
 
     public String getNomeAuthor() {
         return nomeAuthor;

@@ -2,7 +2,7 @@ package org.example.entity;
 
 import java.io.Serializable;
 
-public class Livros implements Serializable {
+public class Livros implements  Serializable {
 
     private final String nomeLivro;
     private final Author author;
@@ -34,5 +34,15 @@ public class Livros implements Serializable {
 
     public String nomeLivro() {
         return nomeLivro;
+    }
+
+    @Override
+    public String toString() {
+        return "Livros{" +
+                "nomeLivro='" + nomeLivro + '\'' +
+                ", author=" + author +
+                ", isbn='" + isbn + '\'' +
+                ", generoliterario=" + generoliterario +
+                '}';
     }
 }

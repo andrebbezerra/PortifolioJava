@@ -6,6 +6,5 @@ public interface Repositorio<T>{
     T salvar(T entidade);
     List<T> listarTodos();
     Optional<T> buscarPorNome(String nome);
-    void editar(String nome);
     void excluir(T entidade);
 }

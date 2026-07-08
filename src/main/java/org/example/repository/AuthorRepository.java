@@ -27,11 +27,6 @@ public class AuthorRepository implements Repositorio<Author> {
     }
 
     @Override
-    public void editar(String nome) {
-
-    }
-
-    @Override
     public void excluir(Author author) {
         autores.remove(author);
     }

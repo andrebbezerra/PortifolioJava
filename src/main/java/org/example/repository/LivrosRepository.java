@@ -9,12 +9,10 @@ import java.util.Optional;
 public class LivrosRepository extends Serializacao implements Repositorio<Livros> {
 
     private final List<Livros> listaLivros = new ArrayList<>();
-    Serializacao serializacao;
 
     @Override
     public Livros salvar(Livros livro) {
-        listaLivros.add(livro);
-        serializacao.serializar(livro);
+        serializar(livro);
         return livro;
     }
 
@@ -24,32 +22,21 @@ public class LivrosRepository extends Serializacao implements Repositorio<Livros
     }
 
     public Optional<Livros> buscarPorNome(String nomeLivro) {
-        return listaLivros.stream()
-                .filter(l -> l.nomeLivro().equals(nomeLivro))
-                .findFirst();
+        return (Optional<Livros>) deserializar();
     }
 
     public Optional<Livros> buscarPorAuthor(String nomeAuthor) {
-        return listaLivros.stream()
+        List<Livros> listaLivrosRecuperados = (List<Livros>) deserializar();
+        return listaLivrosRecuperados.stream()
                 .filter(a -> a.getAuthor().getNomeAuthor().equals(nomeAuthor))
                 .findFirst();
     }
 
     public Optional<Livros> buscarPorCategoria(String categoria) {
-        return listaLivros.stream()
+        List<Livros> listaLivrosRecuperados = (List<Livros>) deserializar();
+        return listaLivrosRecuperados.stream()
                 .filter(c -> c.getGeneroliterario().equals(categoria))
                 .findFirst();
-    }
-
-
-
-    @Override
-    public void editar(String nome) {
-        Livros livroEncontrado = listaLivros.stream()
-                .filter(l -> l.nomeLivro()
-                .equals(nome)).
-                findFirst()
-                .orElse(null);
     }
 
     @Override

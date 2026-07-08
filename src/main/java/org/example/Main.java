@@ -47,18 +47,18 @@ public class Main {
                 case 4:
                     System.out.println("Digite o nome:");
                     nomeLivro = sc.nextLine();
-                    System.out.println(livros.buscarPorNome(nomeLivro));
+                    System.out.println(livros.buscarPorNome(nomeLivro).map(l -> "Livro " + l.getNomeLivro() + " Está Cadastrado").orElse("Livro não encontrado"));
                     break;
                 case 5:
                     System.out.println(livros.listarTodos());
                     break;
                 case 6:
                     System.out.println("Digite o nome do autor:");
-                    System.out.println(livros.buscarPorAuthor(sc.nextLine()));
+                    System.out.println(livros.buscarPorAuthor(sc.nextLine()).map(Livros::getNomeLivro).orElse("Autor não encontrado"));
                     break;
                 case 7:
                     System.out.println("Digite a categoria:");
-                    System.out.println(livros.buscarPorCategoria(sc.nextLine()));
+                    System.out.println(livros.buscarPorCategoria(sc.nextLine()).map(Livros::getNomeLivro).orElse("Categoria não encontrada"));
                     break;
                 case 8:
                     continuarExecutando  = false;
