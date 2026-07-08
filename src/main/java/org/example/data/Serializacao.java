@@ -2,31 +2,24 @@ package org.example.data;
 
 import java.io.*;
 
-public abstract class Serializacao implements Serializable{
+// Serializacao.java
+public abstract class Serializacao implements Serializable {
 
-    public void serializar(Object object){
-        ObjectOutputStream objectOutput;
-
-        try {
-                objectOutput = new ObjectOutputStream(new FileOutputStream("livraria.byte", true));
-                objectOutput.writeObject(object);
-                objectOutput.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-    }
-
-    public Object deserializar(){
-        ObjectInputStream objectInput;
-
-        try{
-           objectInput = new ObjectInputStream(new FileInputStream("livraria.byte"));
-           //objectInput.close();
-            return objectInput.readObject();
-        }catch (IOException | ClassNotFoundException e) {
+    public void serializar(Object objeto, String caminhoArquivo) {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(caminhoArquivo))) {
+            out.writeObject(objeto);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
+    public Object deserializar(String caminhoArquivo) {
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(caminhoArquivo))) {
+            return in.readObject();
+        } catch (FileNotFoundException e) {
+            return null; // primeira execução, arquivo ainda não existe — não é erro
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

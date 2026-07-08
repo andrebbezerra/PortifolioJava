@@ -87,9 +87,7 @@ public class Main {
             try {
                 Manga manga = new Manga(nomeLivro, author, isbn, GeneroLiterario.valueOf(generoLiterario), sc.nextLine());
                 livros.salvar(manga);
-                return livros.buscarPorNome(nomeLivro)
-                        .map(l -> "Livro " + l.nomeLivro() + " cadastrado com sucesso!")
-                        .orElse("Erro ao cadastrar o livro.");
+                return "Livro Cadastrado com Sucesso";
             }catch (IllegalArgumentException e) {
                 return "Erro ao cadastrar livro: Gênero literário inválido. Por favor, escolha um dos gêneros listados.";
             }
@@ -97,9 +95,7 @@ public class Main {
             try {
                 livros.salvar(new Livros(nomeLivro,author,isbn,GeneroLiterario.valueOf(generoLiterario)));
 
-                return livros.buscarPorNome(nomeLivro)
-                        .map(l -> "Livro " + l.nomeLivro() + " cadastrado com sucesso!")
-                        .orElse("Erro ao cadastrar o livro.");
+                return "Livro Cadastrado com Sucesso";
             } catch (IllegalArgumentException e) {
                 return "Erro ao cadastrar livro: Gênero literário inválido. Por favor, escolha um dos gêneros listados.";
             }

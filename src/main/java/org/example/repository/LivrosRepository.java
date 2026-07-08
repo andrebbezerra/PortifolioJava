@@ -6,42 +6,48 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+// LivrosRepository.java
 public class LivrosRepository extends Serializacao implements Repositorio<Livros> {
 
-    private final List<Livros> listaLivros = new ArrayList<>();
+    private static final String ARQUIVO = "livraria.byte";
+    private final List<Livros> listaLivros;
+
+    public LivrosRepository() {
+        Object dados = deserializar(ARQUIVO);
+        this.listaLivros = (dados instanceof List<?>) ? (List<Livros>) dados : new ArrayList<>();
+    }
 
     @Override
     public Livros salvar(Livros livro) {
-        serializar(livro);
+        listaLivros.add(livro);
+        serializar(listaLivros, ARQUIVO); // grava o SNAPSHOT inteiro
         return livro;
     }
 
     @Override
     public List<Livros> listarTodos() {
-        return listaLivros;
+        return List.copyOf(listaLivros);
     }
 
     public Optional<Livros> buscarPorNome(String nomeLivro) {
-        return (Optional<Livros>) deserializar();
+        return listaLivros.stream().filter(l -> l.getNomeLivro().equals(nomeLivro)).findFirst();
     }
 
     public Optional<Livros> buscarPorAuthor(String nomeAuthor) {
-        List<Livros> listaLivrosRecuperados = (List<Livros>) deserializar();
-        return listaLivrosRecuperados.stream()
-                .filter(a -> a.getAuthor().getNomeAuthor().equals(nomeAuthor))
+        return listaLivros.stream()
+                .filter(l -> l.getAuthor().getNomeAuthor().equals(nomeAuthor))
                 .findFirst();
     }
 
     public Optional<Livros> buscarPorCategoria(String categoria) {
-        List<Livros> listaLivrosRecuperados = (List<Livros>) deserializar();
-        return listaLivrosRecuperados.stream()
-                .filter(c -> c.getGeneroliterario().equals(categoria))
+        return listaLivros.stream()
+                .filter(l -> l.getGeneroliterario().name().equalsIgnoreCase(categoria))
                 .findFirst();
     }
 
     @Override
-    public void excluir(Livros livros) {
-        listaLivros.remove(livros);
+    public void excluir(Livros livro) {
+        listaLivros.remove(livro);
+        serializar(listaLivros, ARQUIVO); // regrava sem o item excluído
     }
-
 }
