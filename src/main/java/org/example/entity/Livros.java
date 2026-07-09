@@ -9,6 +9,13 @@ public class Livros implements  Serializable {
     private final String isbn;
     private final GeneroLiterario generoliterario;
 
+    public Livros(String nomeLivro, Author author, String isbn, GeneroLiterario generoliterario) {
+        this.nomeLivro = nomeLivro;
+        this.author = author;
+        this.isbn = isbn;
+        this.generoliterario = generoliterario;
+    }
+
     public String getNomeLivro() {
         return nomeLivro;
     }
@@ -25,12 +32,6 @@ public class Livros implements  Serializable {
         return generoliterario;
     }
 
-    public Livros(String nomeLivro, Author author, String isbn, GeneroLiterario generoliterario) {
-        this.nomeLivro = nomeLivro;
-        this.author = author;
-        this.isbn = isbn;
-        this.generoliterario = generoliterario;
-    }
 
     public String nomeLivro() {
         return nomeLivro;

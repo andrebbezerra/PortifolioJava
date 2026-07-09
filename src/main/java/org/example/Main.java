@@ -1,10 +1,10 @@
 package org.example;
-import org.example.entity.Author;
-import org.example.entity.GeneroLiterario;
-import org.example.entity.Livros;
-import org.example.entity.Manga;
+import org.example.entity.*;
 import org.example.repository.AuthorRepository;
+import org.example.repository.EmprestimoRepository;
 import org.example.repository.LivrosRepository;
+import org.example.repository.UsuariosRepository;
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -14,6 +14,8 @@ public class Main {
     static String generoLiterario;
     static AuthorRepository autorRepository = new AuthorRepository();
     static LivrosRepository livros = new LivrosRepository();
+    static UsuariosRepository usuarios = new UsuariosRepository();
+    static EmprestimoRepository emprestimoRepository = new EmprestimoRepository();
     static Scanner sc = new Scanner(System.in);
 
     public static void main(String[] args) {
@@ -24,14 +26,17 @@ public class Main {
         while (continuarExecutando ){
             System.out.println("Qual opção você gostaria de executar?");
             System.out.println("-------------------------------------");
-            System.out.println("1 - Adicionar um livro");
-            System.out.println("2 - Atualizar um livro");
-            System.out.println("3 - Excluir um livro");
-            System.out.println("4 - Consultar um livro Cadastrado pelo nome");
-            System.out.println("5 - Consultar Lista de livros Cadastrados");
-            System.out.println("6 - Consultar Livros por Autor");
-            System.out.println("7 - Consultar Livros por Categoria(DRAMA,TERROR,FICCAOCIENTIFICA,ACAO,AVENTURA,BIOGRAFIA)");
-            System.out.println("8 - Sair do Programa");
+            System.out.println("1  - Adicionar um livro");
+            System.out.println("2  - Atualizar um livro");
+            System.out.println("3  - Excluir um livro");
+            System.out.println("4  - Consultar um livro Cadastrado pelo nome");
+            System.out.println("5  - Consultar Lista de livros Cadastrados");
+            System.out.println("6  - Consultar Livros por Autor");
+            System.out.println("7  - Consultar Livros por Categoria(DRAMA,TERROR,FICCAOCIENTIFICA,ACAO,AVENTURA,BIOGRAFIA)");
+            System.out.println("8  - Cadastrar Usuario:");
+            System.out.println("9  - Solicitar Emprestimo de Livro:");
+            System.out.println("10 - Devolver Emprestimo de Livro:");
+            System.out.println("11 - Sair do Programa");
             opcao = sc.nextInt();
             sc.nextLine();
             switch(opcao){
@@ -61,6 +66,15 @@ public class Main {
                     System.out.println(livros.buscarPorCategoria(sc.nextLine()).map(Livros::getNomeLivro).orElse("Categoria não encontrada"));
                     break;
                 case 8:
+                    System.out.println(cadastrarUsuario());
+                    break;
+                case 9:
+                    System.out.println(solicitarEmprestimoLivro());
+                    break;
+                case 10:
+                    System.out.println(devolverEmprestimoLivro());
+                    break;
+                case 11:
                     continuarExecutando  = false;
                     break;
                 default: System.out.println("Opção inválida. Por favor, escolha uma opção entre 1 e 8.");
@@ -68,6 +82,58 @@ public class Main {
         }
         System.out.println("Obrigado por usar o nosso sistema");
          sc.close();
+    }
+
+    private static String devolverEmprestimoLivro() {
+        System.out.println("Digite o usuario para devolver o livro:");
+        String usuario = sc.nextLine();
+
+        System.out.println("Digite o nome do livro que quer devolver:");
+        String livro = sc.nextLine();
+
+        emprestimoRepository.devolverEmprestimo(usuario, livro);
+        return null;
+    }
+
+    private static String solicitarEmprestimoLivro() {
+        System.out.println("Digite o usuario:");
+        String usuario = sc.nextLine();
+
+        if(!usuarios.existePorNome(usuario)){
+            return "Usuario não encontrado";
+        }
+
+        System.out.println("Digite o nome livro que você quer pegar emprestado:");
+        String nomeLivro = sc.nextLine();
+
+        if(!livros.existePorNome(nomeLivro)){
+            return "Livro não encontrado";
+        }
+        LocalDate dataEmprestimo = LocalDate.now();
+        LocalDate dataFinalEmprestimo = dataEmprestimo.plusDays(30);
+
+        try{
+
+            emprestimoRepository.salvar(new Emprestimo(usuarios.buscarPorNome(usuario),livros.buscarPorNome(nomeLivro),dataEmprestimo,dataFinalEmprestimo));
+            return  "O livro foi emprestado com sucesso, você tem até o dia: "+dataFinalEmprestimo+ " para devolver o livro.";
+        }catch(Exception e){
+            return "Erro ao salvar o emprestimo";
+        }
+    }
+
+    private static String cadastrarUsuario() {
+        System.out.println("Digite o nome do usuario:");
+        String nome = sc.nextLine();
+        System.out.println("Digite o email:");
+        String email = sc.nextLine();
+        int maiorId = usuarios.buscarMaiorId();
+
+        try {
+            usuarios.salvar(new Usuarios(nome, email, maiorId));
+            return "Usuario cadastrado com sucesso";
+        }catch (Exception e){
+            return e.getMessage();
+        }
     }
 
     private static String adicionarLivro(){

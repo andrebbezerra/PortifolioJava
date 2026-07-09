@@ -33,6 +33,10 @@ public class LivrosRepository extends Serializacao implements Repositorio<Livros
         return listaLivros.stream().filter(l -> l.getNomeLivro().equals(nomeLivro)).findFirst();
     }
 
+    public boolean existePorNome(String nome) {
+        return listaLivros.stream().anyMatch(l -> l.getNomeLivro().equals(nome));
+    }
+
     public Optional<Livros> buscarPorAuthor(String nomeAuthor) {
         return listaLivros.stream()
                 .filter(l -> l.getAuthor().getNomeAuthor().equals(nomeAuthor))
