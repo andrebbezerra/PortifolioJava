@@ -1,11 +1,11 @@
 package org.example.repository;
 
 import org.example.entity.Emprestimo;
+import org.example.entity.Usuarios;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class EmprestimoRepository implements Repositorio<Emprestimo>{
 
@@ -17,24 +17,9 @@ public class EmprestimoRepository implements Repositorio<Emprestimo>{
         return emprestimo;
     }
 
-    public boolean devolverEmprestimo(String usuario, String livro) {
-        
-        List<Emprestimo> filtrados = emprestimos.stream()
-                .filter(e -> e.livro().equals(livro))
-                .toList();
-
-        try{
-            boolean remove = emprestimos.remove(filtrados);
-            return true;
-        }catch(Exception e){
-            return false;
-        }
-
-    }
-
     @Override
     public List<Emprestimo> listarTodos() {
-        return List.of();
+        return List.copyOf(emprestimos);
     }
 
     @Override

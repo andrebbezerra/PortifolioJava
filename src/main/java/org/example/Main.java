@@ -91,7 +91,7 @@ public class Main {
         System.out.println("Digite o nome do livro que quer devolver:");
         String livro = sc.nextLine();
 
-        emprestimoRepository.devolverEmprestimo(usuario, livro);
+       // emprestimoRepository.devolverEmprestimo(usuario, livro);
         return null;
     }
 
