@@ -1,13 +1,14 @@
 package org.example.entity;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public record Emprestimo(
+public record Emprestimo (
         Usuarios usuario,
         Livros livro,
         LocalDate dataEmprestimo,
         LocalDate dataEmprestimoFinal,
-        LocalDate dataDevolucaoReal) {
+        LocalDate dataDevolucaoReal) implements Serializable{
 
     /** Um empréstimo está ativo enquanto não tiver data real de devolução. */
     public boolean estaAtivo() {

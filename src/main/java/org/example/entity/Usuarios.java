@@ -1,6 +1,8 @@
 package org.example.entity;
 
-public record Usuarios(String nome,String email,int id) {
+import java.io.Serializable;
+
+public record Usuarios(String nome, String email, int id) implements Serializable {
 
     public String buscarPorNome() {
         return nome;

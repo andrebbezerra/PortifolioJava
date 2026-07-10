@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public class UsuariosRepository extends Serializacao implements Repositorio<Usuarios> {
 
-    private List<Usuarios> usuarios = new ArrayList<>();
+    private List<Usuarios> usuarios;
     private static final String ARQUIVO = "usuario.byte";
 
     public UsuariosRepository() {
@@ -17,10 +17,10 @@ public class UsuariosRepository extends Serializacao implements Repositorio<Usua
     }
 
     @Override
-    public Usuarios salvar(Usuarios usuarios) {
-        this.usuarios.add(usuarios);
+    public Usuarios salvar(Usuarios usuario) {
+        this.usuarios.add(usuario);
         serializar(usuarios, ARQUIVO);
-        return usuarios;
+        return usuario;
     }
 
     @Override
@@ -38,6 +38,7 @@ public class UsuariosRepository extends Serializacao implements Repositorio<Usua
     @Override
     public void excluir(Usuarios usuarios) {
         this.usuarios.remove(usuarios);
+        serializar(usuarios, ARQUIVO);
     }
 
     public boolean existePorNome(String nome) {

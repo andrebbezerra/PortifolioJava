@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public class EmprestimoRepository extends Serializacao implements Repositorio<Emprestimo>{
 
-    private List<Emprestimo> emprestimos = new ArrayList<>();
+    private List<Emprestimo> emprestimos
     private static final String ARQUIVO = "emprestimo.byte";
 
     public EmprestimoRepository() {
@@ -62,11 +62,13 @@ public class EmprestimoRepository extends Serializacao implements Repositorio<Em
         emprestimos.remove(emprestimoAtivo);
         Emprestimo devolvido = emprestimoAtivo.devolver(dataDevolucao);
         emprestimos.add(devolvido);
+        serializar(emprestimos, ARQUIVO); // grava o SNAPSHOT inteiro
         return devolvido;
     }
 
     @Override
     public void excluir(Emprestimo emprestimo) {
         emprestimos.remove(emprestimo);
+        serializar(emprestimos, ARQUIVO); // grava o SNAPSHOT inteiro
     }
 }
