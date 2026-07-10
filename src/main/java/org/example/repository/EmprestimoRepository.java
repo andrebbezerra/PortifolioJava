@@ -1,25 +1,32 @@
 package org.example.repository;
 
+import org.example.data.EmprestimoPersistencia;
 import org.example.entity.Emprestimo;
 import org.example.data.Serializacao;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class EmprestimoRepository extends Serializacao implements Repositorio<Emprestimo>{
+public class EmprestimoRepository extends Serializacao implements Repositorio<Emprestimo> {
 
     private final List<Emprestimo> emprestimos;
     private static final String ARQUIVO = "emprestimo.byte";
 
     public EmprestimoRepository() {
         Object dados = deserializar(ARQUIVO);
-        this.emprestimos = (dados instanceof List<?>) ? (List<Emprestimo>) dados : new ArrayList<>();
+
+        if (dados instanceof EmprestimoPersistencia) {
+            EmprestimoPersistencia persistencia = (EmprestimoPersistencia) dados;
+            this.emprestimos = persistencia.getEmprestimos();
+        } else {
+            this.emprestimos = new ArrayList<>();
+        }
     }
 
     @Override
     public Emprestimo salvar(Emprestimo emprestimo) {
         emprestimos.add(emprestimo);
-        serializar(emprestimos, ARQUIVO); // grava o SNAPSHOT inteiro
+        serializar(new EmprestimoPersistencia(emprestimos), ARQUIVO);
         return emprestimo;
     }
 
@@ -28,21 +35,14 @@ public class EmprestimoRepository extends Serializacao implements Repositorio<Em
         return List.copyOf(emprestimos);
     }
 
-    @Override
-    public Optional<Emprestimo> buscarPorNome(String nome) {
-        // Emprestimo não tem "nome" — esse método existe só pra cumprir o contrato
-        // da interface genérica. Ver nota sobre ISP no fim da explicação.
-        return Optional.empty();
-    }
-
     /**
-     * Localiza o empréstimo ATIVO (ainda não devolvido) de um usuário para um livro.
+     * Localiza o empréstimo ATIVO (ainda não devolvido) de um usuario para um livro.
      * É essa busca que a devolução vai usar.
      */
     public Optional<Emprestimo> buscarEmprestimoAtivo(String nomeUsuario, String nomeLivro) {
         return emprestimos.stream()
                 .filter(Emprestimo::estaAtivo)
-                .filter(e -> e.usuario().buscarPorNome().equals(nomeUsuario))
+                .filter(e -> e.usuario().nome().equals(nomeUsuario))
                 .filter(e -> e.livro().getNomeLivro().equals(nomeLivro))
                 .findFirst();
     }
@@ -56,19 +56,19 @@ public class EmprestimoRepository extends Serializacao implements Repositorio<Em
 
     /**
      * "Atualiza" a devolução: remove a versão antiga (ativa) e insere a nova (devolvida).
-     * Isso é o equivalente, em coleção imutável, a um UPDATE de linha.
+     * Isso é o equivalente, em coleção imutável, a um atualizacao de linha.
      */
     public Emprestimo devolver(Emprestimo emprestimoAtivo, java.time.LocalDate dataDevolucao) {
         emprestimos.remove(emprestimoAtivo);
         Emprestimo devolvido = emprestimoAtivo.devolver(dataDevolucao);
         emprestimos.add(devolvido);
-        serializar(emprestimos, ARQUIVO); // grava o SNAPSHOT inteiro
+        serializar(new EmprestimoPersistencia(emprestimos), ARQUIVO);
         return devolvido;
     }
 
     @Override
     public void excluir(Emprestimo emprestimo) {
         emprestimos.remove(emprestimo);
-        serializar(emprestimos, ARQUIVO); // grava o SNAPSHOT inteiro
+        serializar(new EmprestimoPersistencia(emprestimos), ARQUIVO);
     }
 }

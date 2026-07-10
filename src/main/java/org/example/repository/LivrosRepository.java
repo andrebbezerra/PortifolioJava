@@ -1,12 +1,13 @@
+// src/main/java/org/example/repository/LivrosRepository.java
 package org.example.repository;
 
 import org.example.data.Serializacao;
+import org.example.data.LivrariaPersistencia;
 import org.example.entity.Livros;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-// LivrosRepository.java
 public class LivrosRepository extends Serializacao implements Repositorio<Livros> {
 
     private static final String ARQUIVO = "livraria.byte";
@@ -14,13 +15,19 @@ public class LivrosRepository extends Serializacao implements Repositorio<Livros
 
     public LivrosRepository() {
         Object dados = deserializar(ARQUIVO);
-        this.listaLivros = (dados instanceof List<?>) ? (List<Livros>) dados : new ArrayList<>();
+
+        if (dados instanceof LivrariaPersistencia) {
+            LivrariaPersistencia persistencia = (LivrariaPersistencia) dados;
+            this.listaLivros = persistencia.getLivros();
+        } else {
+            this.listaLivros = new ArrayList<>();
+        }
     }
 
     @Override
     public Livros salvar(Livros livro) {
         listaLivros.add(livro);
-        serializar(listaLivros, ARQUIVO); // grava o SNAPSHOT inteiro
+        serializar(new LivrariaPersistencia(listaLivros), ARQUIVO);
         return livro;
     }
 
@@ -30,16 +37,19 @@ public class LivrosRepository extends Serializacao implements Repositorio<Livros
     }
 
     public Optional<Livros> buscarPorNome(String nomeLivro) {
-        return listaLivros.stream().filter(l -> l.getNomeLivro().equals(nomeLivro)).findFirst();
+        return listaLivros.stream()
+                .filter(l -> l.getNomeLivro().equals(nomeLivro))
+                .findFirst();
     }
 
     public boolean existePorNome(String nome) {
-        return listaLivros.stream().anyMatch(l -> l.getNomeLivro().equals(nome));
+        return listaLivros.stream()
+                .anyMatch(l -> l.getNomeLivro().equals(nome));
     }
 
     public Optional<Livros> buscarPorAuthor(String nomeAuthor) {
         return listaLivros.stream()
-                .filter(l -> l.getAuthor().getNomeAuthor().equals(nomeAuthor))
+                .filter(l -> l.getAuthor().nomeAuthor().equals(nomeAuthor))
                 .findFirst();
     }
 
@@ -52,6 +62,6 @@ public class LivrosRepository extends Serializacao implements Repositorio<Livros
     @Override
     public void excluir(Livros livro) {
         listaLivros.remove(livro);
-        serializar(listaLivros, ARQUIVO); // regrava sem o item excluído
+        serializar(new LivrariaPersistencia(listaLivros), ARQUIVO);
     }
 }

@@ -22,7 +22,7 @@ public class AuthorRepository implements Repositorio<Author> {
 
     public Optional<Author> buscarPorNome(String nomeAutor){
         return autores.stream()
-                .filter(a -> a.getNomeAuthor().equals(nomeAutor))
+                .filter(a -> a.nomeAuthor().equals(nomeAutor))
                 .findFirst();
     }
 

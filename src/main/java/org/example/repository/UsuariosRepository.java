@@ -1,26 +1,39 @@
 package org.example.repository;
 
 import org.example.data.Serializacao;
+import org.example.data.UsuariosPersistencia;
 import org.example.entity.Usuarios;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class UsuariosRepository extends Serializacao implements Repositorio<Usuarios> {
+public class UsuariosRepository extends Serializacao implements Repositorio<Usuarios>,BuscaRepositorio<Usuarios> {
 
     private List<Usuarios> usuarios;
     private static final String ARQUIVO = "usuario.byte";
 
     public UsuariosRepository() {
         Object dados = deserializar(ARQUIVO);
-        this.usuarios = (dados instanceof List<?>) ? (List<Usuarios>) dados : new ArrayList<>();
+
+        if (dados instanceof UsuariosPersistencia) {
+            UsuariosPersistencia persistencia = (UsuariosPersistencia) dados;
+            this.usuarios = persistencia.getUsuarios();
+        } else {
+            this.usuarios = new ArrayList<>();
+        }
     }
 
     @Override
     public Usuarios salvar(Usuarios usuario) {
         this.usuarios.add(usuario);
-        serializar(usuarios, ARQUIVO);
+        serializar(new UsuariosPersistencia(usuarios), ARQUIVO);
         return usuario;
+    }
+
+    @Override
+    public void excluir(Usuarios usuario) {
+        this.usuarios.remove(usuario);
+        serializar(new UsuariosPersistencia(usuarios), ARQUIVO);
     }
 
     @Override
@@ -28,21 +41,8 @@ public class UsuariosRepository extends Serializacao implements Repositorio<Usua
         return List.copyOf(usuarios);
     }
 
-    @Override
-    public Optional<Usuarios> buscarPorNome(String nome) {
-        return usuarios.stream()
-                .filter(u -> u.buscarPorNome().equals(nome))
-                .findFirst();
-    }
-
-    @Override
-    public void excluir(Usuarios usuarios) {
-        this.usuarios.remove(usuarios);
-        serializar(usuarios, ARQUIVO);
-    }
-
     public boolean existePorNome(String nome) {
-        return usuarios.stream().anyMatch(u -> u.buscarPorNome().equals(nome));
+        return usuarios.stream().anyMatch(u -> u.nome().equals(nome));
     }
 
     public int buscarMaiorId(){
@@ -53,5 +53,8 @@ public class UsuariosRepository extends Serializacao implements Repositorio<Usua
         return maiorId + 1;
     }
 
-
+    @Override
+    public Optional<Usuarios> buscarPorNome(String nome) {
+        return Optional.empty();
+    }
 }

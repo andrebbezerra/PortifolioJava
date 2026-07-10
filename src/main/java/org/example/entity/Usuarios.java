@@ -4,10 +4,6 @@ import java.io.Serializable;
 
 public record Usuarios(String nome, String email, int id) implements Serializable {
 
-    public String buscarPorNome() {
-        return nome;
-    }
-
     @Override
     public int id() {
         return id;

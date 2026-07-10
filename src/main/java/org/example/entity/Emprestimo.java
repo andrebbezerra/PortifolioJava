@@ -25,7 +25,7 @@ public record Emprestimo (
     @Override
     public String toString() {
         return "Emprestimo{" +
-                "usuario=" + usuario.buscarPorNome() +
+                "usuario=" + usuario.nome() +
                 ", livro=" + livro.getNomeLivro() +
                 ", dataEmprestimo=" + dataEmprestimo +
                 ", dataFinalEmprestimo=" + dataEmprestimoFinal +
