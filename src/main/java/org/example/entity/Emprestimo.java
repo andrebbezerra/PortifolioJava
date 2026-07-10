@@ -1,27 +1,34 @@
 package org.example.entity;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
-public record Emprestimo(java.util.Optional<Usuarios> usuario, java.util.Optional<Livros> livro, LocalDate dataEmprestimo, LocalDate dataFinalEmprestimo) {
+public record Emprestimo(
+        Usuarios usuario,
+        Livros livro,
+        LocalDate dataEmprestimo,
+        LocalDate dataEmprestimoFinal,
+        LocalDate dataDevolucaoReal) {
 
-    @Override
-    public Optional<Usuarios> usuario() {
-        return usuario;
+    /** Um empréstimo está ativo enquanto não tiver data real de devolução. */
+    public boolean estaAtivo() {
+        return dataDevolucaoReal == null;
     }
-
-    @Override
-    public Optional<Livros> livro() {
-        return livro;
+    /**
+     * "Atualiza" o empréstimo — na prática, devolve um Emprestimo NOVO
+     * com a data de devolução preenchida. O objeto original continua imutável.
+     */
+    public Emprestimo devolver(LocalDate dataDevolucao) {
+        return new Emprestimo(usuario, livro, dataEmprestimo, dataEmprestimoFinal, dataDevolucao);
     }
 
     @Override
     public String toString() {
         return "Emprestimo{" +
-                "usuario=" + usuario +
-                ", livro=" + livro +
+                "usuario=" + usuario.buscarPorNome() +
+                ", livro=" + livro.getNomeLivro() +
                 ", dataEmprestimo=" + dataEmprestimo +
-                ", dataFinalEmprestimo=" + dataFinalEmprestimo +
+                ", dataFinalEmprestimo=" + dataEmprestimoFinal +
+                ", devolvido=" + !estaAtivo() +
                 '}';
     }
 }

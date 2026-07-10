@@ -27,6 +27,11 @@ public class UsuariosRepository implements Repositorio<Usuarios> {
                 .findFirst();
     }
 
+    @Override
+    public void excluir(Usuarios usuarios) {
+        this.usuarios.remove(usuarios);
+    }
+
     public boolean existePorNome(String nome) {
         return usuarios.stream().anyMatch(u -> u.buscarPorNome().equals(nome));
     }
@@ -36,11 +41,8 @@ public class UsuariosRepository implements Repositorio<Usuarios> {
                 .mapToInt(Usuarios::id)
                 .max()
                 .orElse(0);
-        return maiorId;
+        return maiorId + 1;
     }
 
-    @Override
-    public void excluir(Usuarios entidade) {
 
-    }
 }

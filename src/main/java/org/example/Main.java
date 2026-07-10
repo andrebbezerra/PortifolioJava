@@ -21,7 +21,7 @@ public class Main {
     public static void main(String[] args) {
 
         boolean continuarExecutando  = true;
-        int opcao;
+        int opcao = 11;
 
         while (continuarExecutando ){
             System.out.println("Qual opção você gostaria de executar?");
@@ -37,7 +37,12 @@ public class Main {
             System.out.println("9  - Solicitar Emprestimo de Livro:");
             System.out.println("10 - Devolver Emprestimo de Livro:");
             System.out.println("11 - Sair do Programa");
-            opcao = sc.nextInt();
+            if(sc.hasNextInt()){
+                opcao = sc.nextInt();
+            }
+            else{
+                System.out.println("Erro: O valor digitado não é um número inteiro válido.");
+            }
             sc.nextLine();
             switch(opcao){
                 case 1:
@@ -77,11 +82,46 @@ public class Main {
                 case 11:
                     continuarExecutando  = false;
                     break;
-                default: System.out.println("Opção inválida. Por favor, escolha uma opção entre 1 e 8.");
+                default: System.out.println("Opção inválida. Por favor, escolha uma opção entre 1 e 11.");
             }
         }
         System.out.println("Obrigado por usar o nosso sistema");
          sc.close();
+    }
+
+    private static String solicitarEmprestimoLivro() {
+        System.out.println("Digite o usuario:");
+        String usuario = sc.nextLine();
+
+        Optional<Usuarios> usuarioEncontrado = usuarios.buscarPorNome(usuario);
+        if (usuarioEncontrado.isEmpty()) {
+            return "Usuario não encontrado";
+        }
+
+        System.out.println("Digite o nome livro que você quer pegar emprestado:");
+        String nomeLivro = sc.nextLine();
+
+        Optional<Livros> livroEncontrado = livros.buscarPorNome(nomeLivro);
+        if (livroEncontrado.isEmpty()) {
+            return "Livro não encontrado";
+        }
+
+        if (emprestimoRepository.existeEmprestimoAtivoParaLivro(nomeLivro)) {
+            return "Este livro já está emprestado e ainda não foi devolvido.";
+        }
+
+        LocalDate dataEmprestimo = LocalDate.now();
+        LocalDate dataFinalEmprestimo = dataEmprestimo.plusDays(30);
+
+        emprestimoRepository.salvar(new Emprestimo(
+                usuarioEncontrado.get(),
+                livroEncontrado.get(),
+                dataEmprestimo,
+                dataFinalEmprestimo,
+                null // ainda não devolvido
+        ));
+
+        return "O livro foi emprestado com sucesso, você tem até o dia: " + dataFinalEmprestimo + " para devolver o livro.";
     }
 
     private static String devolverEmprestimoLivro() {
@@ -89,36 +129,18 @@ public class Main {
         String usuario = sc.nextLine();
 
         System.out.println("Digite o nome do livro que quer devolver:");
-        String livro = sc.nextLine();
-
-       // emprestimoRepository.devolverEmprestimo(usuario, livro);
-        return null;
-    }
-
-    private static String solicitarEmprestimoLivro() {
-        System.out.println("Digite o usuario:");
-        String usuario = sc.nextLine();
-
-        if(!usuarios.existePorNome(usuario)){
-            return "Usuario não encontrado";
-        }
-
-        System.out.println("Digite o nome livro que você quer pegar emprestado:");
         String nomeLivro = sc.nextLine();
 
-        if(!livros.existePorNome(nomeLivro)){
-            return "Livro não encontrado";
-        }
-        LocalDate dataEmprestimo = LocalDate.now();
-        LocalDate dataFinalEmprestimo = dataEmprestimo.plusDays(30);
+        Optional<Emprestimo> emprestimoAtivo =
+                emprestimoRepository.buscarEmprestimoAtivo(usuario, nomeLivro);
 
-        try{
-
-            emprestimoRepository.salvar(new Emprestimo(usuarios.buscarPorNome(usuario),livros.buscarPorNome(nomeLivro),dataEmprestimo,dataFinalEmprestimo));
-            return  "O livro foi emprestado com sucesso, você tem até o dia: "+dataFinalEmprestimo+ " para devolver o livro.";
-        }catch(Exception e){
-            return "Erro ao salvar o emprestimo";
+        if (emprestimoAtivo.isEmpty()) {
+            return "Não foi encontrado um empréstimo ativo para esse usuário e livro.";
         }
+
+        emprestimoRepository.devolver(emprestimoAtivo.get(), LocalDate.now());
+
+        return "Livro devolvido com sucesso!";
     }
 
     private static String cadastrarUsuario() {

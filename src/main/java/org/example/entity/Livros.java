@@ -1,6 +1,7 @@
 package org.example.entity;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class Livros implements  Serializable {
 
@@ -45,5 +46,17 @@ public class Livros implements  Serializable {
                 ", isbn='" + isbn + '\'' +
                 ", generoliterario=" + generoliterario +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) return false;
+        Livros livros = (Livros) object;
+        return Objects.equals(nomeLivro, livros.nomeLivro) && Objects.equals(author, livros.author) && Objects.equals(isbn, livros.isbn) && generoliterario == livros.generoliterario;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(nomeLivro, author, isbn, generoliterario);
     }
 }

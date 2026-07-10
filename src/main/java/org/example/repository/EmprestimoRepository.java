@@ -1,15 +1,13 @@
 package org.example.repository;
 
 import org.example.entity.Emprestimo;
-import org.example.entity.Usuarios;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class EmprestimoRepository implements Repositorio<Emprestimo>{
 
-    List<Emprestimo> emprestimos = new ArrayList<>();
+    private final List<Emprestimo> emprestimos = new ArrayList<>();
 
     @Override
     public Emprestimo salvar(Emprestimo emprestimo) {
@@ -24,11 +22,43 @@ public class EmprestimoRepository implements Repositorio<Emprestimo>{
 
     @Override
     public Optional<Emprestimo> buscarPorNome(String nome) {
+        // Emprestimo não tem "nome" — esse método existe só pra cumprir o contrato
+        // da interface genérica. Ver nota sobre ISP no fim da explicação.
         return Optional.empty();
+    }
+
+    /**
+     * Localiza o empréstimo ATIVO (ainda não devolvido) de um usuário para um livro.
+     * É essa busca que a devolução vai usar.
+     */
+    public Optional<Emprestimo> buscarEmprestimoAtivo(String nomeUsuario, String nomeLivro) {
+        return emprestimos.stream()
+                .filter(Emprestimo::estaAtivo)
+                .filter(e -> e.usuario().buscarPorNome().equals(nomeUsuario))
+                .filter(e -> e.livro().getNomeLivro().equals(nomeLivro))
+                .findFirst();
+    }
+
+    /** Verifica se um livro já está emprestado (uso na hora de EMPRESTAR, evita duplo empréstimo). */
+    public boolean existeEmprestimoAtivoParaLivro(String nomeLivro) {
+        return emprestimos.stream()
+                .filter(Emprestimo::estaAtivo)
+                .anyMatch(e -> e.livro().getNomeLivro().equals(nomeLivro));
+    }
+
+    /**
+     * "Atualiza" a devolução: remove a versão antiga (ativa) e insere a nova (devolvida).
+     * Isso é o equivalente, em coleção imutável, a um UPDATE de linha.
+     */
+    public Emprestimo devolver(Emprestimo emprestimoAtivo, java.time.LocalDate dataDevolucao) {
+        emprestimos.remove(emprestimoAtivo);
+        Emprestimo devolvido = emprestimoAtivo.devolver(dataDevolucao);
+        emprestimos.add(devolvido);
+        return devolvido;
     }
 
     @Override
     public void excluir(Emprestimo emprestimo) {
-
+        emprestimos.remove(emprestimo);
     }
 }
