@@ -1,17 +1,25 @@
 package org.example.repository;
 
 import org.example.entity.Emprestimo;
+import org.example.data.Serializacao;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class EmprestimoRepository implements Repositorio<Emprestimo>{
+public class EmprestimoRepository extends Serializacao implements Repositorio<Emprestimo>{
 
-    private final List<Emprestimo> emprestimos = new ArrayList<>();
+    private List<Emprestimo> emprestimos = new ArrayList<>();
+    private static final String ARQUIVO = "emprestimo.byte";
+
+    public EmprestimoRepository() {
+        Object dados = deserializar(ARQUIVO);
+        this.emprestimos = (dados instanceof List<?>) ? (List<Emprestimo>) dados : new ArrayList<>();
+    }
 
     @Override
     public Emprestimo salvar(Emprestimo emprestimo) {
         emprestimos.add(emprestimo);
+        serializar(emprestimos, ARQUIVO); // grava o SNAPSHOT inteiro
         return emprestimo;
     }
 

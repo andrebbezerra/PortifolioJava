@@ -21,7 +21,6 @@ public class Main {
     public static void main(String[] args) {
 
         boolean continuarExecutando  = true;
-        int opcao = 11;
 
         while (continuarExecutando ){
             System.out.println("Qual opção você gostaria de executar?");
@@ -37,13 +36,14 @@ public class Main {
             System.out.println("9  - Solicitar Emprestimo de Livro:");
             System.out.println("10 - Devolver Emprestimo de Livro:");
             System.out.println("11 - Sair do Programa");
-            if(sc.hasNextInt()){
-                opcao = sc.nextInt();
-            }
-            else{
+            if(!sc.hasNextInt()){
                 System.out.println("Erro: O valor digitado não é um número inteiro válido.");
+                sc.nextLine();
+                continue;
             }
+            int opcao = sc.nextInt();
             sc.nextLine();
+
             switch(opcao){
                 case 1:
                     System.out.println(adicionarLivro());
@@ -148,14 +148,15 @@ public class Main {
         String nome = sc.nextLine();
         System.out.println("Digite o email:");
         String email = sc.nextLine();
-        int maiorId = usuarios.buscarMaiorId();
 
-        try {
-            usuarios.salvar(new Usuarios(nome, email, maiorId));
-            return "Usuario cadastrado com sucesso";
-        }catch (Exception e){
-            return e.getMessage();
+        if (usuarios.existePorNome(nome)) {
+            return "Já existe um usuário cadastrado com esse nome.";
         }
+
+        int maiorId = usuarios.buscarMaiorId();
+        usuarios.salvar(new Usuarios(nome, email, maiorId));
+        return "Usuario cadastrado com sucesso";
+
     }
 
     private static String adicionarLivro(){

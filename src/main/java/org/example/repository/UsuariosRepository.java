@@ -1,17 +1,25 @@
 package org.example.repository;
 
+import org.example.data.Serializacao;
 import org.example.entity.Usuarios;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class UsuariosRepository implements Repositorio<Usuarios> {
+public class UsuariosRepository extends Serializacao implements Repositorio<Usuarios> {
 
-    private final List<Usuarios> usuarios = new ArrayList<>();
+    private List<Usuarios> usuarios = new ArrayList<>();
+    private static final String ARQUIVO = "usuario.byte";
+
+    public UsuariosRepository() {
+        Object dados = deserializar(ARQUIVO);
+        this.usuarios = (dados instanceof List<?>) ? (List<Usuarios>) dados : new ArrayList<>();
+    }
 
     @Override
     public Usuarios salvar(Usuarios usuarios) {
         this.usuarios.add(usuarios);
+        serializar(usuarios, ARQUIVO);
         return usuarios;
     }
 
