@@ -70,6 +70,6 @@ class UsuariosRepositoryTest {
         int segundoId = repository.buscarMaiorId();
         repository.salvar(new Usuarios("B", "b@email.com", segundoId));
 
-        assertNotEquals(primeiroId, segundoId); // é exatamente esse o bug que você corrigiu antes — agora com teste travando a regressão
+        assertNotEquals(primeiroId, segundoId); // é exatamente esse o erro que você corrigiu antes — agora com teste travando a regressão
     }
 }

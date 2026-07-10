@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public class EmprestimoRepository extends Serializacao implements Repositorio<Emprestimo>{
 
-    private List<Emprestimo> emprestimos
+    private final List<Emprestimo> emprestimos;
     private static final String ARQUIVO = "emprestimo.byte";
 
     public EmprestimoRepository() {
