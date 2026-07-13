@@ -8,13 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class LivrosRepository extends Serializacao implements Repositorio<Livros> {
+public class LivrosRepository implements Repositorio<Livros> {
 
     private static final String ARQUIVO = "livraria.byte";
     private final List<Livros> listaLivros;
+    private final Serializacao serializador = new Serializacao(); // Composição!
 
     public LivrosRepository() {
-        Object dados = deserializar(ARQUIVO);
+        Object dados = serializador.deserializar(ARQUIVO);
 
         if (dados instanceof LivrariaPersistencia) {
             LivrariaPersistencia persistencia = (LivrariaPersistencia) dados;
@@ -27,7 +28,7 @@ public class LivrosRepository extends Serializacao implements Repositorio<Livros
     @Override
     public Livros salvar(Livros livro) {
         listaLivros.add(livro);
-        serializar(new LivrariaPersistencia(listaLivros), ARQUIVO);
+        serializador.serializar(new LivrariaPersistencia(listaLivros), ARQUIVO);
         return livro;
     }
 
@@ -62,6 +63,6 @@ public class LivrosRepository extends Serializacao implements Repositorio<Livros
     @Override
     public void excluir(Livros livro) {
         listaLivros.remove(livro);
-        serializar(new LivrariaPersistencia(listaLivros), ARQUIVO);
+        serializador.serializar(new LivrariaPersistencia(listaLivros), ARQUIVO);
     }
 }

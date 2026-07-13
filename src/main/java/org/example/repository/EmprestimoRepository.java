@@ -7,13 +7,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class EmprestimoRepository extends Serializacao implements Repositorio<Emprestimo> {
+public class EmprestimoRepository implements Repositorio<Emprestimo> {
 
     private final List<Emprestimo> emprestimos;
     private static final String ARQUIVO = "emprestimo.byte";
+    private final Serializacao serializador = new Serializacao();
 
     public EmprestimoRepository() {
-        Object dados = deserializar(ARQUIVO);
+        Object dados = serializador.deserializar(ARQUIVO);
 
         if (dados instanceof EmprestimoPersistencia) {
             EmprestimoPersistencia persistencia = (EmprestimoPersistencia) dados;
@@ -26,7 +27,7 @@ public class EmprestimoRepository extends Serializacao implements Repositorio<Em
     @Override
     public Emprestimo salvar(Emprestimo emprestimo) {
         emprestimos.add(emprestimo);
-        serializar(new EmprestimoPersistencia(emprestimos), ARQUIVO);
+        serializador.serializar(new EmprestimoPersistencia(emprestimos), ARQUIVO);
         return emprestimo;
     }
 
@@ -62,13 +63,13 @@ public class EmprestimoRepository extends Serializacao implements Repositorio<Em
         emprestimos.remove(emprestimoAtivo);
         Emprestimo devolvido = emprestimoAtivo.devolver(dataDevolucao);
         emprestimos.add(devolvido);
-        serializar(new EmprestimoPersistencia(emprestimos), ARQUIVO);
+        serializador.serializar(new EmprestimoPersistencia(emprestimos), ARQUIVO);
         return devolvido;
     }
 
     @Override
     public void excluir(Emprestimo emprestimo) {
         emprestimos.remove(emprestimo);
-        serializar(new EmprestimoPersistencia(emprestimos), ARQUIVO);
+        serializador.serializar(new EmprestimoPersistencia(emprestimos), ARQUIVO);
     }
 }

@@ -4,6 +4,9 @@ import org.example.repository.AuthorRepository;
 import org.example.repository.EmprestimoRepository;
 import org.example.repository.LivrosRepository;
 import org.example.repository.UsuariosRepository;
+import org.example.service.EmprestimoService;
+import org.example.service.UsuarioService;
+
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Scanner;
@@ -14,8 +17,8 @@ public class Main {
     static String generoLiterario;
     static AuthorRepository autorRepository = new AuthorRepository();
     static LivrosRepository livros = new LivrosRepository();
-    static UsuariosRepository usuarios = new UsuariosRepository();
-    static EmprestimoRepository emprestimoRepository = new EmprestimoRepository();
+    static UsuarioService usuarioService = new UsuarioService();
+    static EmprestimoService emprestimoService = new EmprestimoService();
     static Scanner sc = new Scanner(System.in);
 
     public static void main(String[] args) {
@@ -93,35 +96,10 @@ public class Main {
         System.out.println("Digite o usuario:");
         String usuario = sc.nextLine();
 
-        Optional<Usuarios> usuarioEncontrado = usuarios.buscarPorNome(usuario);
-        if (usuarioEncontrado.isEmpty()) {
-            return "Usuario não encontrado";
-        }
-
         System.out.println("Digite o nome livro que você quer pegar emprestado:");
         String nomeLivro = sc.nextLine();
 
-        Optional<Livros> livroEncontrado = livros.buscarPorNome(nomeLivro);
-        if (livroEncontrado.isEmpty()) {
-            return "Livro não encontrado";
-        }
-
-        if (emprestimoRepository.existeEmprestimoAtivoParaLivro(nomeLivro)) {
-            return "Este livro já está emprestado e ainda não foi devolvido.";
-        }
-
-        LocalDate dataEmprestimo = LocalDate.now();
-        LocalDate dataFinalEmprestimo = dataEmprestimo.plusDays(30);
-
-        emprestimoRepository.salvar(new Emprestimo(
-                usuarioEncontrado.get(),
-                livroEncontrado.get(),
-                dataEmprestimo,
-                dataFinalEmprestimo,
-                null // ainda não devolvido
-        ));
-
-        return "O livro foi emprestado com sucesso, você tem até o dia: " + dataFinalEmprestimo + " para devolver o livro.";
+       return emprestimoService.solicitarEmprestimoService(usuario, nomeLivro);
     }
 
     private static String devolverEmprestimoLivro() {
@@ -131,46 +109,35 @@ public class Main {
         System.out.println("Digite o nome do livro que quer devolver:");
         String nomeLivro = sc.nextLine();
 
-        Optional<Emprestimo> emprestimoAtivo =
-                emprestimoRepository.buscarEmprestimoAtivo(usuario, nomeLivro);
-
-        if (emprestimoAtivo.isEmpty()) {
-            return "Não foi encontrado um empréstimo ativo para esse usuário e livro.";
-        }
-
-        emprestimoRepository.devolver(emprestimoAtivo.get(), LocalDate.now());
-
-        return "Livro devolvido com sucesso!";
+        return emprestimoService.devolverEmprestimoService(usuario, nomeLivro);
     }
 
     private static String cadastrarUsuario() {
         System.out.println("Digite o nome do usuario:");
         String nome = sc.nextLine();
+
         System.out.println("Digite o email:");
         String email = sc.nextLine();
 
-        if (usuarios.existePorNome(nome)) {
-            return "Já existe um usuário cadastrado com esse nome.";
-        }
-
-        int maiorId = usuarios.buscarMaiorId();
-        usuarios.salvar(new Usuarios(nome, email, maiorId));
-        return "Usuario cadastrado com sucesso";
-
+        return usuarioService.adicionarUsuarioService(nome, email);
     }
 
     private static String adicionarLivro(){
 
         System.out.println("Digite o nome:");
         nomeLivro = sc.nextLine();
+
         System.out.println("Digite o ISBN:");
         isbn = sc.nextLine();
+
         System.out.println("Digite o Autor:");
         Author author = new Author(sc.nextLine());
         autorRepository.salvar(author);
+
         System.out.println("Escolha o Genero do livro: DRAMA,TERROR, FICCAOCIENTIFICA, ACAO, AVENTURA, BIOGRAFIA,MANGA");
         generoLiterario = sc.nextLine();
         generoLiterario = generoLiterario.toUpperCase();
+
         if(generoLiterario.equals("MANGA")){
             System.out.println("Digite a edição do Mangá:");
             try {

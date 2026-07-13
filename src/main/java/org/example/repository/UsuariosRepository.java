@@ -7,13 +7,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class UsuariosRepository extends Serializacao implements Repositorio<Usuarios>,BuscaRepositorio<Usuarios> {
+public class UsuariosRepository implements Repositorio<Usuarios>,BuscaRepositorio<Usuarios> {
 
     private List<Usuarios> usuarios;
     private static final String ARQUIVO = "usuario.byte";
+    private final Serializacao serializador = new Serializacao(); // Composição!
 
     public UsuariosRepository() {
-        Object dados = deserializar(ARQUIVO);
+        Object dados = serializador.deserializar(ARQUIVO);
 
         if (dados instanceof UsuariosPersistencia) {
             UsuariosPersistencia persistencia = (UsuariosPersistencia) dados;
@@ -26,14 +27,14 @@ public class UsuariosRepository extends Serializacao implements Repositorio<Usua
     @Override
     public Usuarios salvar(Usuarios usuario) {
         this.usuarios.add(usuario);
-        serializar(new UsuariosPersistencia(usuarios), ARQUIVO);
+        serializador.serializar(new UsuariosPersistencia(usuarios), ARQUIVO);
         return usuario;
     }
 
     @Override
     public void excluir(Usuarios usuario) {
         this.usuarios.remove(usuario);
-        serializar(new UsuariosPersistencia(usuarios), ARQUIVO);
+        serializador.serializar(new UsuariosPersistencia(usuarios), ARQUIVO);
     }
 
     @Override
@@ -55,6 +56,8 @@ public class UsuariosRepository extends Serializacao implements Repositorio<Usua
 
     @Override
     public Optional<Usuarios> buscarPorNome(String nome) {
-        return Optional.empty();
+        return usuarios.stream()
+                .filter(u -> u.nome().equals(nome))
+                .findFirst();
     }
 }

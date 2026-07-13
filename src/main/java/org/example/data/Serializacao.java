@@ -3,7 +3,7 @@ package org.example.data;
 import java.io.*;
 
 // Serializacao.java
-public abstract class Serializacao implements Serializable {
+public class Serializacao implements Serializable {
 
     public void serializar(Object objeto, String caminhoArquivo) {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(caminhoArquivo))) {
